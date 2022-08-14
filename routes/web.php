@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\EngineerController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,10 +15,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
+//-------------------------- Engineer Routes ---------------------------------------
+Route::get('/', [EngineerController::class, 'index'])->name('engineer.index');
+
+Route::post('/store_engineer', [EngineerController::class, 'store'])->name('engineer.store');
+
+Route::get('fetch_all', [EngineerController::class, 'fetchAll'])->name('engineer.fetchall');
+
+//-------------------------- Employee Routes ---------------------------------------
 Route::get('/employee', [EmployeeController::class, 'index']);
 Route::post('/employee', [EmployeeController::class, 'store']);
 Route::get('/fetch-employee', [EmployeeController::class, 'fetchEmployee']);
