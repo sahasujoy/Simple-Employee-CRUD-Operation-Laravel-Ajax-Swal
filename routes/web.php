@@ -26,6 +26,12 @@ Route::post('/store_engineer', [EngineerController::class, 'store'])->name('engi
 
 Route::get('fetch_all', [EngineerController::class, 'fetchAll'])->name('engineer.fetchall');
 
+Route::get('/edit_engineer', [EngineerController::class, 'edit'])->name('engineer.edit');
+
+Route::post('/update_engineer', [EngineerController::class, 'update'])->name('engineer.update');
+
+Route::post('/delete_engineer', [EngineerController::class, 'delete'])->name('engineer.delete');
+
 //-------------------------- Employee Routes ---------------------------------------
 Route::get('/employee', [EmployeeController::class, 'index']);
 Route::post('/employee', [EmployeeController::class, 'store']);

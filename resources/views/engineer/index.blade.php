@@ -73,8 +73,8 @@ data-bs-backdrop="static" aria-hidden="true">
     </div>
     <form action="#" method="POST" id="edit_engineer_form" enctype="multipart/form-data">
       @csrf
-      <input type="hidden" name="emp_id" id="emp_id">
-      <input type="hidden" name="emp_avatar" id="emp_avatar">
+      <input type="hidden" name="eng_id" id="eng_id">
+      <input type="hidden" name="eng_avatar" id="eng_avatar">
       <div class="modal-body p-4 bg-light">
         <div class="row">
           <div class="col-lg">
@@ -149,11 +149,105 @@ data-bs-backdrop="static" aria-hidden="true">
                 url: '{{ route('engineer.fetchall') }}',
                 method: 'get',
                 success: function (res) {
-                    //console.log(res);
-                    
+                    // console.log(res);
+                    $("#show_all_engineers").html(res);
+                    //but image is not visible, to see image go to terminal and run the command> php artisan storage:link
+                    // use datatable
+                    $("table").DataTable({
+                        order: [0, 'desc']
+                    });
+
                   }
-            })
+            });
         }
+        //delete engineer ajax request
+        $(document).on('click', '.deleteIcon', function (e) {
+          e.preventDefault();
+          let id = $(this).attr('id');
+          Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+          }).then((result) => {
+          if (result.isConfirmed) {
+            $.ajax({
+              url: '{{ route('engineer.delete') }}',
+              method: 'post',
+              data: {
+                id: id,
+                _token: '{{ csrf_token() }}'
+              },
+              success: function(response)
+              {
+                Swal.fire(
+                'Deleted!',
+                'Your file has been deleted.',
+                'success'
+                )
+                fetchAllEngineers();
+              }
+            });
+          }
+         });
+        });
+        //update engineer ajax request
+        $("#edit_engineer_form").submit(function(e){
+            e.preventDefault();
+            const fd = new FormData(this);
+            $("#edit_engineer_btn").text('Updating...');
+            $.ajax({
+                url: "{{ route('engineer.update') }}",
+                method: 'post',
+                data: fd,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    // console.log(response);
+                    if(response.status == 200)
+                    {
+                        Swal.fire(
+                            'Updated!',
+                            'Engineer Data Updated Successfully!',
+                            'success'
+                        );
+                        fetchAllEngineers();
+                    }
+                    $("#edit_engineer_btn").text('Update Engineer');
+                    $("#edit_engineer_form")[0].reset();
+                    $("#editEngineerModal").modal('hide');
+                }
+            });
+        });
+        //edit engineer ajax request
+        $(document).on('click', '.editIcon', function (e) {
+            e.preventDefault();
+            let id = $(this).attr('id');
+            // console.log(id);
+            $.ajax({
+                url: "{{ route('engineer.edit') }}",
+                method: 'get',
+                data: {
+                    id: id,
+                    _token: "{{ csrf_token() }}"
+                },
+                success: function (response) {
+                    // console.log(response);
+                    $('#fname').val(response.first_name);
+                    $('#lname').val(response.last_name);
+                    $('#email').val(response.email);
+                    $('#phone').val(response.phone);
+                    $('#post').val(response.post);
+                    $('#avatar').html(`<img src="storage/images/${response.avatar}" width="100" class="img-fluid img-thumbnail">`);
+                    $('#eng_id').val(response.id);
+                    $('#eng_avatar').val(response.avatar);
+                }
+            });
+        });
         //add engineer ajax request
         $("#add_engineer_form").submit(function(e){
             e.preventDefault();
@@ -175,7 +269,8 @@ data-bs-backdrop="static" aria-hidden="true">
                             'Added!',
                             'Engineer Added Successfully!',
                             'success'
-                        )
+                        );
+                        fetchAllEngineers();
                     }
                     $("#add_engineer_btn").text('Add Employee');
                     $("#add_engineer_form")[0].reset();
